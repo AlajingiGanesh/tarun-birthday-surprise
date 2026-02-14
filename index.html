@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Birthday Surprise | Tarun</title>
+    <!-- Fix for favicon 404 error -->
+    <link rel="icon" href="data:,">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #ff007a;
+            --accent: #ffd700;
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #000;
+            color: white;
+        }
+
+        /* --- BACKGROUND --- */
+        #bg {
+            position: fixed;
+            inset: 0;
+            background: url("broparents.jpg") center/cover no-repeat;
+            background-color: #111;
+            z-index: 1;
+            transition: filter 1.5s ease, transform 3s ease;
+            transform: scale(1.1);
+        }
+
+        #bg.reveal {
+            transform: scale(1);
+        }
+
+        #bg.blur {
+            filter: brightness(0.3) blur(15px);
+        }
+
+        /* --- CELEBRATION EFFECTS --- */
+        #global-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .floating-asset {
+            position: fixed;
+            font-size: 2rem;
+            z-index: 2;
+            pointer-events: none;
+            animation: floatUp 10s linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(110vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.8;
+            }
+
+            90% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        #magic-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 15;
+            display: none;
+        }
+
+        .light-beam {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(transparent, var(--primary), transparent);
+            opacity: 0.3;
+            animation: beamMove 4s infinite;
+        }
+
+        @keyframes beamMove {
+            0% {
+                left: -10%;
+            }
+
+            100% {
+                left: 110%;
+            }
+        }
+
+        /* --- SCREENS --- */
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            transition: opacity 0.5s;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: clamp(20px, 5vw, 50px);
+            width: 95%;
+            max-width: 800px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            animation: cardPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        @keyframes cardPop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        input {
+            width: 80%;
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        button {
+            padding: 16px 40px;
+            border-radius: 15px;
+            border: none;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 15px var(--secondary);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px var(--secondary);
+        }
+
+        video {
+            width: 100%;
+            max-width: 1000px;
+            height: auto;
+            aspect-ratio: 16 / 9;   /* Forces horizontal layout */
+            object-fit: cover;      /* Makes it fill nicely */
+            border-radius: 20px;
+            display: none;
+            box-shadow: 0 0 50px var(--primary);
+        }
+
+        /* --- ANIMAL TEXT OVERLAYS --- */
+        .animal-text {
+            position: absolute;
+            z-index: 25;
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px var(--primary), 0 0 40px var(--secondary);
+            animation: textPulse 1.5s infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes textPulse {
+            from {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            to {
+                transform: scale(1.1);
+                opacity: 1;
+                text-shadow: 0 0 30px var(--accent), 0 0 60px var(--primary);
+            }
+        }
+
+        /* --- THE BIG WINDOW SLIDER --- */
+        .slider-box {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: 0.8s ease-in-out;
+            transform: translateY(20px);
+            padding: 20px;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .main-img {
+            width: 100%;
+            max-width: 500px;
+            height: clamp(180px, 35vh, 320px);
+            object-fit: cover;
+            border-radius: 25px;
+            border: 4px solid var(--secondary);
+            margin-bottom: 15px;
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.4);
+        }
+
+        .wishes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .wish-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: clamp(0.85rem, 1.4vw, 1rem);
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .gallery-container {
+            width: 100%;
+            max-width: 550px;
+            height: clamp(250px, 45vh, 350px);
+            overflow: hidden;
+            border-radius: 25px;
+            border: 3px solid var(--primary);
+            position: relative;
+        }
+
+        .gallery-track {
+            display: flex;
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            height: 100%;
+        }
+
+        .gal-img {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .emotional-text {
+            font-size: clamp(1rem, 2.2vw, 1.6rem);
+            font-style: italic;
+            line-height: 1.4;
+            color: #ffd1e8;
+            text-shadow: 0 0 15px var(--secondary);
+            padding: 0 20px;
+            max-width: 90%;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: clamp(45px, 8vw, 65px);
+            height: clamp(45px, 8vw, 65px);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+        /* Modal */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #0a0a0a;
+            padding: clamp(30px, 8vw, 60px);
+            border-radius: 40px;
+            border: 3px solid var(--secondary);
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 100px rgba(255, 0, 122, 0.3);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .cake-anim {
+            font-size: clamp(4rem, 10vw, 6rem);
+            animation: cakeBop 2s infinite;
+        }
+
+        @keyframes cakeBop {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-btn {
+                top: auto;
+                bottom: 20px;
+                transform: none;
+            }
+
+            .prev {
+                left: 15%;
+            }
+
+            .next {
+                right: 15%;
+            }
+
+            .wishes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .glass-card {
+                padding: 25px 12px;
+            }
+
+            .slider-container {
+                height: 90vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="bg"></div>
+    <canvas id="global-canvas"></canvas>
+
+    <!-- BGM ELEMENT -->
+    <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+
+    <!-- FLOATING LAYER -->
+    <div id="asset-container"></div>
+
+    <div id="magic-layer">
+        <div class="light-beam"></div>
+    </div>
+
+    <!-- 1. AUTH SCREEN -->
+    <div id="auth-screen" class="screen hidden">
+        <div class="glass-card">
+            <h1 style="color: var(--accent); margin-bottom: 10px;">⭐ Welcome, The New Born King ⭐</h1>
+            <p class="quote">"Unlock the magic meant only for you."</p>
+            <input type="password" id="password" placeholder="Enter Secret Code (Family Names shortcut ⭐)">
+            <br>
+            <button onclick="checkAuth()">Open Surprise 🎁</button>
+        </div>
+    </div>
+
+    <!-- 2. VIDEO INTRO -->
+    <div id="video-container" class="screen hidden">
+        <!-- Overlay Text for Animals -->
+        <div id="animal-overlay-text" class="animal-text hidden"></div>
+
+        <video id="v-lion" src="lion.mp4"></video>
+        <video id="v-tiger" src="tiger.mp4"></video>
+        <video id="v-panda" src="panda.mp4"></video>
+        <video id="v-final" src="together1.mp4"></video>
+    </div>
+
+    <!-- 3. TRANSITION -->
+    <div id="transition-screen" class="screen hidden">
+        <button style="font-size: 2.2rem; padding: 30px 60px; border-radius: 70px;" onclick="startMagic()">LET'S
+            CELEBRATE ANNAYYA 🔥</button>
+    </div>
+
+    <!-- 4. MAIN SLIDER -->
+    <div id="slider-screen" class="screen hidden">
+        <div class="glass-card slider-container" style="max-width: 1000px; height: 85vh; padding: 0;">
+            <div class="slider-box">
+                <button class="nav-btn prev" onclick="changeSlide(-1)">◀</button>
+                <button class="nav-btn next" onclick="changeSlide(1)">▶</button>
+
+                <!-- PAGE 1: WISHES -->
+                <div class="slide active">
+                    <h1 style="font-size: clamp(1.6rem, 4vw, 3rem); color: var(--accent); margin-bottom: 15px;">Happy
+                        Birthday Tarun Annayya ! 🎊</h1>
+                    <div class="wishes-grid">
+                        <div class="wish-card">✨ Happy Birthday, Annayya!
+                            You are not just my brother, you are my inspiration. I am proud of the person you are
+                            becoming. May God bless you with
+                            endless success, peace, and all your dreams come true. Keep shining and keep winning!</div>
+                        <div class="wish-card">⭐ Happy Birthday, Brother!
+                            Thanks for being my unpaid bodyguard, personal ATM, and lifetime problem solver. I promise
+                            to irritate you a little less
+                            this year… maybe. 😜 Love you always!</div>
+                        <div class="wish-card">🚀 Happy Birthday Bhai ...! to my first best friend and forever
+                            protector.
+                            You’ve always been my biggest support, my silent strength, and my constant guide through
+                            every phase of life. I’m truly
+                            lucky and proud to call you my Annayya. May this year bring you endless happiness, success,
+                            and everything your heart
+                            desires. 💙👑</div>
+                        <div class="wish-card">💎 Happy Birthday to the best elder brother in the world!
+                            You are my strength, my guide, and my biggest support. Thank you for always protecting me,
+                            scolding me, and loving me
+                            unconditionally. I am so lucky to have you in my life. May this year bring you success,
+                            happiness, and everything you
+                            deserve. 💙</div>
+                    </div>
+                </div>
+
+                <!-- PAGE 2: CAKE -->
+                <div class="slide">
+                    <div class="cake-anim">🎂</div>
+                    <img src="pic11.jpg" class="main-img"
+                        onerror="this.src='https://via.placeholder.com/500x320?text=Cake+Time'">
+                    <p style="font-size: 1.4rem; font-weight: bold; color: var(--primary);">Celebrate the Legend's
+                        Birthday!</p>
+                </div>
+
+                <!-- PAGE 3: SUPPORT -->
+                <div class="slide">
+                    <img src="brosis.jpg" class="main-img"
+                        onerror="this.src='https://via.placeholder.com/500x320?text=Backbone'">
+                    <p class="emotional-text">"You are our strength and support in everything. Your presence makes every challenge easier and every happy moment even
+                    more special. Thank you for always being our backbone, our guide, and our biggest protector. We feel safe, proud, and
+                    blessed to have a brother like you. May your life be filled with success, happiness, and everything you truly deserve.
+                    Happy Birthday Annayya..! We love you more than words can say. 💙"</p>
+                </div>
+
+                <!-- PAGE 4: MEMORIES (Auto-Scroll) -->
+                <div class="slide" id="memories-page">
+                    <h1 style="margin-bottom: 15px; color: var(--accent);">✨ OUR MEMORIES ✨</h1>
+                    <div class="gallery-container">
+                        <div class="gallery-track" id="gallery-track">
+                            <img src="pic1.jpg" class="gal-img">
+                            <img src="pic2.jpg" class="gal-img">
+                            <img src="pic3.jpg" class="gal-img">
+                            <img src="pic4.jpg" class="gal-img">
+                            <img src="pic5.jpg" class="gal-img">
+                            <img src="pic6.jpg" class="gal-img">
+                            <img src="pic7.jpg" class="gal-img">
+                            <img src="pic8.jpg" class="gal-img">
+                            <img src="pic9.jpg" class="gal-img">
+                            <img src="pic10.jpg" class="gal-img">
+                            <img src="pic11.jpg" class="gal-img">
+                            <img src="pic12.jpg" class="gal-img">
+                            <img src="pic13.jpg" class="gal-img">
+                            <img src="pic14.jpg" class="gal-img">
+                        </div>
+                    </div>
+                    <p style="margin-top: 10px; font-style: italic; color: var(--primary);">Capturing our best
+                        moments...</p>
+                </div>
+
+                <!-- PAGE 5: EMOTIONAL -->
+                <div class="slide">
+                    <img src="broparents.jpg" class="main-img"
+                        onerror="this.src='https://via.placeholder.com/500x320?text=Family'">
+                    <p class="emotional-text">"No matter where life takes you, you will always be our son, our pride, and our greatest blessing. From the day you came
+                    into our lives, you filled our hearts with joy and purpose. Watching you grow into the strong, kind, and responsible
+                    person you are today makes us incredibly proud. You will always be our first blessing and our forever best friend. We
+                    love you more than words can ever express. May God bless you with long life, success, happiness, and endless strength.
+                    Happy Birthday, our dear son. 💙"</p>
+                </div>
+
+                <!-- PAGE 6: TRIGGER -->
+                <div class="slide">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
+                    <h1 style="font-size: clamp(1.5rem, 4vw, 3rem); margin-bottom: 30px;">Ready for the Surprise?</h1>
+                    <button style="font-size: 1.5rem; padding: 20px 50px;" onclick="showSurpriseModal()">VIEW GIFT
+                        🎊</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SURPRISE MODAL -->
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-content" id="modal-box">
+            <h1 id="modal-title" style="color: var(--secondary); margin-bottom: 20px;">Open Surprise? 🎁</h1>
+            <p id="modal-desc" style="font-size: 1.2rem; margin-bottom: 40px;">Are you ready to witness the final
+                legend's gift?</p>
+            <div style="display: flex; gap: 25px; justify-content: center;">
+                <button class="btn-no" id="no-btn" onmouseover="moveNoBtn()" onclick="moveNoBtn()">NO</button>
+                <button class="btn-yes" onclick="finalUnlock()">YES</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FINAL SCREEN -->
+    <div id="final-video-screen" class="screen hidden">
+        <div class="glass-card" style="max-width: 950px; padding: 10px;">
+            <video id="v-surprise" src="final.mp4" controls></video>
+            <br>
+            <button onclick="location.reload()" style="margin-top: 10px;">Restart Celebration 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const bg = document.getElementById('bg');
+        const bgm = document.getElementById('bgm');
+        const authScreen = document.getElementById('auth-screen');
+        const videoScreen = document.getElementById('video-container');
+        const transitionScreen = document.getElementById('transition-screen');
+        const sliderScreen = document.getElementById('slider-screen');
+        const magicLayer = document.getElementById('magic-layer');
+        const modal = document.getElementById('modal-overlay');
+        const track = document.getElementById('gallery-track');
+        const assetContainer = document.getElementById('asset-container');
+        const animalText = document.getElementById('animal-overlay-text');
+
+        const vids = [
+            document.getElementById('v-lion'),
+            document.getElementById('v-tiger'),
+            document.getElementById('v-panda'),
+            document.getElementById('v-final')
+        ];
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        let galIndex = 0;
+        let galTimer;
+
+        const assets = ['🐶', '🌸', '🐕', '🌺', '🐾', '🌹', '🐩', '🌻', '🎉'];
+
+        function createFloatingAsset() {
+            const el = document.createElement('div');
+            el.className = 'floating-asset';
+            el.innerText = assets[Math.floor(Math.random() * assets.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            el.style.fontSize = (Math.random() * 1.5 + 1.5) + 'rem';
+            assetContainer.appendChild(el);
+            setTimeout(() => el.remove(), 10000);
+        }
+
+        window.onload = () => {
+            bg.classList.add('reveal');
+            triggerBlast(300);
+            setInterval(createFloatingAsset, 800);
+
+            setTimeout(() => { bg.classList.add('blur'); }, 3000);
+            setTimeout(() => {
+                authScreen.classList.remove('hidden');
+                bgm.play().catch(() => console.log("Waiting for user interaction for BGM"));
+            }, 6000);
+        };
+
+        document.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(e => console.log("BGM failed to play"));
+            }
+        }, { once: true });
+
+        function checkAuth() {
+            const pass = document.getElementById('password').value.toUpperCase();
+            if (pass === "JMTGN") {
+                authScreen.classList.add('hidden');
+                triggerBlast(150);
+                startVideoSequence();
+                bgm.play();
+            } else { alert("Legend's password only! 😎"); }
+        }
+
+        function startVideoSequence() {
+            videoScreen.classList.remove('hidden');
+            let i = 0;
+
+            // Text to show for each video index
+            const labels = ["HAPPY", "BIRTHDAY", "ANNAYYA", "HAPPY BIRTHDAY TARUN"];
+
+            function playNext() {
+                if (i < vids.length) {
+                    const v = vids[i];
+
+                    // Show corresponding text
+                    animalText.innerText = labels[i];
+                    animalText.classList.remove('hidden');
+
+                    v.style.display = 'block';
+                    v.play();
+
+                    v.onended = () => {
+                        v.style.display = 'none';
+                        animalText.classList.add('hidden');
+                        i++;
+                        playNext();
+                    };
+                } else {
+                    videoScreen.classList.add('hidden');
+                    transitionScreen.classList.remove('hidden');
+                }
+            }
+            playNext();
+        }
+
+        function startMagic() {
+            transitionScreen.classList.add('hidden');
+            magicLayer.style.display = 'block';
+            document.body.style.backgroundColor = 'white';
+            triggerBlast(200);
+            setTimeout(() => {
+                document.body.style.backgroundColor = 'black';
+                sliderScreen.classList.remove('hidden');
+            }, 150);
+        }
+
+        function changeSlide(dir) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + dir + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+
+            if (slides[currentSlide].id === 'memories-page') startGallery();
+            else stopGallery();
+        }
+
+        function startGallery() {
+            galIndex = 0;
+            const images = track.querySelectorAll('img').length;
+            if (galTimer) clearInterval(galTimer);
+            galTimer = setInterval(() => {
+                galIndex = (galIndex + 1) % images;
+                track.style.transform = `translateX(-${galIndex * 100}%)`;
+            }, 2000);
+        }
+        function stopGallery() { clearInterval(galTimer); }
+
+        function showSurpriseModal() {
+            modal.classList.remove('hidden');
+        }
+
+        function moveNoBtn() {
+            const btn = document.getElementById('no-btn');
+            btn.style.position = 'absolute';
+            btn.style.left = Math.random() * 80 + 10 + '%';
+            btn.style.top = Math.random() * 80 + 10 + '%';
+            document.getElementById('modal-title').innerText = "Nice try! No is not an option! 😂";
+        }
+
+        function finalUnlock() {
+            modal.classList.add('hidden');
+            triggerCornerBlasts();
+
+            setTimeout(() => {
+                sliderScreen.classList.add('hidden');
+                bgm.pause();
+
+                const finalScreen = document.getElementById('final-video-screen');
+                finalScreen.classList.remove('hidden');
+                const vid = document.getElementById('v-surprise');
+                vid.style.display = 'block';
+                vid.play();
+            }, 1200);
+        }
+
+        function triggerCornerBlasts() {
+            const h = window.innerHeight;
+            const w = window.innerWidth;
+            triggerSpecificBlast(0, h, 250, 45);
+            triggerSpecificBlast(w, h, 250, 135);
+        }
+
+        function triggerSpecificBlast(originX, originY, count, angleDeg) {
+            const canvas = document.getElementById('global-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+            const colors = ['#00f2ff', '#ff007a', '#ffd700', '#ffffff', '#00ff00'];
+
+            for (let i = 0; i < count; i++) {
+                const angleRad = (angleDeg + (Math.random() - 0.5) * 60) * Math.PI / 180;
+                const speed = Math.random() * 25 + 10;
+                particles.push({
+                    x: originX, y: originY,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: Math.cos(angleRad) * speed,
+                    vy: -Math.sin(angleRad) * speed,
+                    grav: 0.25, rot: Math.random() * 360
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.vy += p.grav;
+                    p.rot += 5;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                    if (p.y > canvas.height || p.x < -100 || p.x > canvas.width + 100) particles.splice(i, 1);
+                });
+                if (particles.length > 0) requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function triggerBlast(count) {
+            const canvas = document.getElementById('global-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+            const colors = ['#00f2ff', '#ff007a', '#ffd700', '#ffffff', '#00ff00'];
+
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: (Math.random() - 0.5) * 20, vy: Math.random() * 15 + 5,
+                    grav: 0.2, rot: Math.random() * 360
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.vy += p.grav;
+                    p.rot += 5;
+                    ctx.save(); ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                    if (p.y > canvas.height) particles.splice(i, 1);
+                });
+                if (particles.length > 0) requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('global-canvas');
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        });
+    </script>
+</body>
+
+</html>
